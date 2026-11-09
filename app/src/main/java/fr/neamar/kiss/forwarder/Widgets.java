@@ -79,6 +79,10 @@ class Widgets extends Forwarder {
      * Scrollable container around {@link #widgetArea}
      */
     private WidgetScrollView widgetScroll;
+    private java.util.function.Consumer<String> widgetSwipeListener;
+    void setWidgetSwipeListener(java.util.function.Consumer<String> listener) {
+        widgetSwipeListener = listener;
+    }
     /**
      * Touch listener for gestures on empty areas, buffered until {@code widgetScroll} is available
      */
@@ -362,6 +366,9 @@ class Widgets extends Forwarder {
 
         int height = (int) (lineSize * getLineHeight());
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
+        ((fr.neamar.kiss.ui.WidgetView) hostView).setSwipeListener(direction -> {
+            if (widgetSwipeListener != null) widgetSwipeListener.accept(direction);
+        });
         setWidgetSize(hostView, height, appWidgetInfo);
 
         hostView.setLongClickable(true);
