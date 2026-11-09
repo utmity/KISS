@@ -45,10 +45,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled true
-            shrinkResources = true
+            // Instrumentation shares runtime classes with the target APK. Keep the
+            // debug runtime intact (including Kotlin helpers used only by the runner).
+            minifyEnabled false
+            shrinkResources = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".t2e.debug"
+            versionNameSuffix "-t2e-ctrl"
         }
     }
 

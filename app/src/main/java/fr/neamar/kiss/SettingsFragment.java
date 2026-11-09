@@ -63,6 +63,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
         setPreferencesFromResource(R.xml.preferences, rootKey);
+        PreferenceGroup keyboardKeys = findPreference("keyboard-shortcuts-keys");
+        if (keyboardKeys != null) {
+            for (char key = 'a'; key <= 'z'; key++) {
+                KeyboardAppPreference entry = new KeyboardAppPreference(requireContext());
+                entry.setKey(fr.neamar.kiss.keyboard.KeyboardShortcuts.PREFIX + key);
+                entry.setTitle("Ctrl + " + Character.toUpperCase(key));
+                keyboardKeys.addPreference(entry);
+            }
+        }
 
         if (prefs.getStringSet("selected-search-provider-names", null) == null) {
             // If null, it means this setting has never been accessed before
