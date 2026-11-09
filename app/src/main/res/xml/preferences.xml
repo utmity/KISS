@@ -317,6 +317,12 @@
         <PreferenceCategory
             app:key="gestures-holder"
             app:title="@string/gestures">
+            <ListPreference app:key="widget-swipe-mode" app:defaultValue="edge"
+                app:title="@string/widget_swipe_mode" app:entries="@array/widgetSwipeModes"
+                app:entryValues="@array/widgetSwipeModeValues" app:useSimpleSummaryProvider="true" />
+            <ListPreference app:key="widget-swipe-distance" app:defaultValue="48"
+                app:title="@string/widget_swipe_distance" app:entries="@array/widgetSwipeDistances"
+                app:entryValues="@array/widgetSwipeDistanceValues" app:useSimpleSummaryProvider="true" />
             <ListPreference
                 app:defaultValue="display-keyboard"
                 app:entries="@array/gestureEntries"
