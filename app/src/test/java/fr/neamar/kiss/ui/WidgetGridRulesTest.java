@@ -9,6 +9,7 @@ class WidgetGridRulesTest {
     @Test void boundsValidated() {
         assertTrue(WidgetGridRules.valid(2,0,2,1));
         assertFalse(WidgetGridRules.valid(3,0,2,1));
+        assertFalse(WidgetGridRules.valid(3,0,Integer.MAX_VALUE,1));
         assertFalse(WidgetGridRules.valid(0,-1,2,1));
         assertFalse(WidgetGridRules.valid(0,0,0,1));
         assertFalse(WidgetGridRules.valid(0,0,2,201));

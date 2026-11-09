@@ -158,8 +158,15 @@ public class WidgetGrid extends LinearLayout {
                     boolean vertical = info == null || (info.resizeMode & AppWidgetProviderInfo.RESIZE_VERTICAL) != 0;
                     int minW = info == null ? 1 : Math.max(1, (int) Math.ceil((double) (info.minResizeWidth > 0 ? info.minResizeWidth : info.minWidth) / unit));
                     int minH = info == null ? 1 : Math.max(1, (int) Math.ceil((double) (info.minResizeHeight > 0 ? info.minResizeHeight : info.minHeight) / row));
-                    if (horizontal) c.span = Math.max(Math.min(minW, 4 - c.x), Math.min(4 - c.x, startW + dx));
-                    if (vertical) c.rows = Math.max(minH, Math.min(200, startH + dy));
+                    int maxW = 4 - c.x, maxH = 200;
+                    if (info != null && android.os.Build.VERSION.SDK_INT >= 31) {
+                        if (info.maxResizeWidth > 0 && info.maxResizeWidth >= info.minResizeWidth)
+                            maxW = Math.max(Math.min(minW, maxW), Math.min(maxW, info.maxResizeWidth / unit));
+                        if (info.maxResizeHeight > 0 && info.maxResizeHeight >= info.minResizeHeight)
+                            maxH = Math.max(minH, Math.min(maxH, info.maxResizeHeight / row));
+                    }
+                    if (horizontal) c.span = Math.max(Math.min(minW, 4 - c.x), Math.min(maxW, startW + dx));
+                    if (vertical) c.rows = Math.max(minH, Math.min(maxH, startH + dy));
                 } else {
                     c.x = Math.max(0, Math.min(4 - c.span, startX + dx));
                     c.y = Math.max(0, Math.min(10000, startY + dy));

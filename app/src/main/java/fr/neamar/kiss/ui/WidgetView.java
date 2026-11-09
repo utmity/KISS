@@ -146,6 +146,13 @@ public class WidgetView extends AppWidgetHostView {
     }
 
     @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallow) {
+        // Internal scrolling/seek controls own their gesture; do not open the editor mid-scroll.
+        if (disallow) { super.cancelLongPress(); mHasPerformedLongPress = false; cancelPendingLongPress(); }
+        super.requestDisallowInterceptTouchEvent(disallow);
+    }
+
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
 
