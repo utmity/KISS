@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="input_timeline_title">Input timing experiment</string>
+    <string name="input_timeline_notice">Measurement only: no app launching, input hold, hidden drawing or text rollback. Recording includes test text and key codes in memory (up to 4096 events). Use only test phrases. Export saves an app-private file; nothing is uploaded. F from an empty search field adds a 700 ms observation marker. Disable recording when finished.</string>
+    <string name="input_timeline_enable">Record input timeline</string>
+    <string name="input_timeline_clear">Clear recorded events</string>
+    <string name="input_timeline_export">Export to input-timeline.jsonl</string>
+    <string name="input_timeline_cleared">Recorded events cleared</string>
+    <string name="input_timeline_exported">Saved in app-private files/input-timeline.jsonl</string>
+    <string name="input_timeline_export_failed">Could not export the timeline</string>
+</resources>

@@ -47,6 +47,7 @@ import fr.neamar.kiss.adapter.RecordAdapter;
 import fr.neamar.kiss.broadcast.IncomingCallHandler;
 import fr.neamar.kiss.dataprovider.simpleprovider.SearchProvider;
 import fr.neamar.kiss.forwarder.ForwarderManager;
+import fr.neamar.kiss.experiment.InputTimeline;
 import fr.neamar.kiss.pojo.SearchPojo;
 import fr.neamar.kiss.result.Result;
 import fr.neamar.kiss.searcher.QueryInterface;
@@ -292,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
             @Override
             public void onChanged() {
                 super.onChanged();
+                InputTimeline.record("results.changed", searchEditText, "count=" + adapter.getCount());
                 if (adapter.isEmpty()) {
                     // Display help text when no results available
                     listContainer.setVisibility(View.GONE);
@@ -406,6 +408,8 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
      * Hide the kissbar by default
      */
     protected void onResume() {
+        InputTimeline.setEnabled(prefs.getBoolean(InputTimeline.ENABLED, false));
+        InputTimeline.record("activity.resume", searchEditText, "");
         if (prefs.getBoolean("require-layout-update", false)) {
             super.onResume();
             Log.i(TAG, "Restarting app after setting changes");
@@ -455,6 +459,8 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     protected void onPause() {
+        InputTimeline.record("activity.pause", searchEditText, "");
+        if (searchEditText != null) searchEditText.cancelObservation("activity pause");
         super.onPause();
         forwarderManager.onPause();
     }
@@ -523,6 +529,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     public boolean onKeyDown(int keycode, @NonNull KeyEvent e) {
+        InputTimeline.key("activity.onKeyDown", searchEditText, e);
         if (keycode == KeyEvent.KEYCODE_MENU) {
             // For devices with a physical menu button, we still want to display *our* contextual menu
             menuButton.showContextMenu();
@@ -809,6 +816,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
      * @param query     the query on which to search
      */
     protected void updateSearchRecords(boolean isRefresh, String query) {
+        InputTimeline.record("search.update", searchEditText, "refresh=" + isRefresh);
         cancelSearch();
         dismissPopup();
 
@@ -829,6 +837,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
     }
 
     public void search(@NonNull Searcher.Type type, String query, boolean isRefresh) {
+        InputTimeline.record("search.submit", searchEditText, "type=" + type);
         SearchHandler.getInstance().search(type, this, query, isRefresh);
         displayClearOnInput();
     }

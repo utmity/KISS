@@ -1,0 +1,10 @@
+<resources>
+    <string name="input_timeline_title">入力時系列の実験</string>
+    <string name="input_timeline_notice">測定専用です。アプリ起動・入力保留・描画非表示・入力の巻き戻しは行いません。記録にはテスト文字列とキーコードが含まれます（メモリ上で最大4096件）。テスト用の文字だけ入力してください。書き出し先はアプリ専用ファイルで、外部送信はありません。空の検索欄でFを押すと700msの観測マーカーを追加します。終了後は記録を無効にしてください。</string>
+    <string name="input_timeline_enable">入力の時系列を記録する</string>
+    <string name="input_timeline_clear">記録を消去する</string>
+    <string name="input_timeline_export">input-timeline.jsonlに書き出す</string>
+    <string name="input_timeline_cleared">記録を消去しました</string>
+    <string name="input_timeline_exported">アプリ専用のfiles/input-timeline.jsonlに保存しました</string>
+    <string name="input_timeline_export_failed">記録の書き出しに失敗しました</string>
+</resources>

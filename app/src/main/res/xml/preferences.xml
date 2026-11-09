@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     app:title="@string/activity_setting">
+    <PreferenceScreen app:key="input-timeline" app:title="@string/input_timeline_title">
+        <Preference app:selectable="false" app:summary="@string/input_timeline_notice" />
+        <SwitchPreference app:key="input-timeline-enabled" app:defaultValue="false"
+            app:title="@string/input_timeline_enable" />
+        <Preference app:key="input-timeline-clear" app:title="@string/input_timeline_clear" />
+        <Preference app:key="input-timeline-export" app:title="@string/input_timeline_export" />
+    </PreferenceScreen>
     <PreferenceScreen
         app:key="history_category"
         app:summary="@string/history_settings_summary"

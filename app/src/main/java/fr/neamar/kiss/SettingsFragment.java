@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import fr.neamar.kiss.broadcast.IncomingCallHandler;
+import fr.neamar.kiss.experiment.InputTimeline;
 import fr.neamar.kiss.dataprovider.simpleprovider.SearchProvider;
 import fr.neamar.kiss.dataprovider.simpleprovider.TagsProvider;
 import fr.neamar.kiss.forwarder.InterfaceTweaks;
@@ -63,6 +64,31 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
         setPreferencesFromResource(R.xml.preferences, rootKey);
+        Preference traceScreen = findPreference("input-timeline");
+        if (traceScreen != null) traceScreen.setVisible(BuildConfig.DEBUG);
+        Preference traceClear = findPreference("input-timeline-clear");
+        if (traceClear != null) traceClear.setOnPreferenceClickListener(preference -> {
+            InputTimeline.clear();
+            Toast.makeText(requireContext(), R.string.input_timeline_cleared, Toast.LENGTH_SHORT).show();
+            return true;
+        });
+        Preference traceExport = findPreference("input-timeline-export");
+        if (traceExport != null) traceExport.setOnPreferenceClickListener(preference -> {
+            android.content.Context context = requireContext().getApplicationContext();
+            new Thread(() -> {
+                String message;
+                try {
+                    InputTimeline.export(context);
+                    message = context.getString(R.string.input_timeline_exported);
+                } catch (java.io.IOException exception) {
+                    message = context.getString(R.string.input_timeline_export_failed);
+                }
+                String result = message;
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+                        Toast.makeText(context, result, Toast.LENGTH_LONG).show());
+            }, "input-timeline-export").start();
+            return true;
+        });
 
         if (prefs.getStringSet("selected-search-provider-names", null) == null) {
             // If null, it means this setting has never been accessed before
@@ -138,6 +164,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (InputTimeline.ENABLED.equals(key)) {
+            InputTimeline.setEnabled(sharedPreferences.getBoolean(key, false));
+        }
         if (key != null) {
             KissApplication.getApplication(requireContext()).getIconsHandler().onPrefChanged(sharedPreferences, key);
 
