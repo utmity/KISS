@@ -505,6 +505,8 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
     }
 
     private void handleOnBackPressed() {
+        fr.neamar.kiss.ui.WidgetGrid grid = findViewById(R.id.widgetLayout);
+        if (grid != null && grid.finishEdit()) return;
         if (mPopup != null) {
             mPopup.dismiss();
         } else if (isViewingAllApps()) {

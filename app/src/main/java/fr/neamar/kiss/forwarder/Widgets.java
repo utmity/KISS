@@ -42,6 +42,7 @@ import fr.neamar.kiss.PickAppWidgetActivity;
 import fr.neamar.kiss.R;
 import fr.neamar.kiss.ui.ListPopup;
 import fr.neamar.kiss.ui.WidgetHost;
+import fr.neamar.kiss.ui.WidgetGrid;
 import fr.neamar.kiss.ui.WidgetScrollView;
 import fr.neamar.kiss.utils.DrawableUtils;
 import fr.neamar.kiss.utils.Log;
@@ -74,7 +75,7 @@ class Widgets extends Forwarder {
     /**
      * View widgets are added to
      */
-    private ViewGroup widgetArea;
+    private WidgetGrid widgetArea;
     /**
      * Scrollable container around {@link #widgetArea}
      */
@@ -116,6 +117,7 @@ class Widgets extends Forwarder {
         mAppWidgetHost = new WidgetHost(mainActivity, APPWIDGET_HOST_ID, this::onAppWidgetRemoved);
         widgetArea = mainActivity.findViewById(R.id.widgetLayout);
         widgetScroll = mainActivity.findViewById(R.id.widgetScroll);
+        widgetArea.setEditCallbacks(this::serializeState, v -> showWidgetMenu((AppWidgetHostView) v));
         if (emptyAreaTouchListener != null) {
             widgetScroll.setEmptyAreaTouchListener(emptyAreaTouchListener);
         }
@@ -148,15 +150,7 @@ class Widgets extends Forwarder {
      * Sum of all widget heights including bottom margins.
      */
     private int getTotalWidgetHeight() {
-        int total = 0;
-        for (int i = 0; i < widgetArea.getChildCount(); i++) {
-            View child = widgetArea.getChildAt(i);
-            total += child.getLayoutParams().height;
-            if (child.getLayoutParams() instanceof LinearLayout.LayoutParams) {
-                total += ((LinearLayout.LayoutParams) child.getLayoutParams()).bottomMargin;
-            }
-        }
-        return total;
+        return widgetArea.getMeasuredHeight();
     }
 
     /**
@@ -285,6 +279,7 @@ class Widgets extends Forwarder {
     }
 
     private void serializeState() {
+        widgetArea.save();
         List<String> builder = new ArrayList<>(widgetArea.getChildCount());
         for (int i = 0; i < widgetArea.getChildCount(); i++) {
             AppWidgetHostView view = (AppWidgetHostView) widgetArea.getChildAt(i);
@@ -315,6 +310,7 @@ class Widgets extends Forwarder {
 
         // remove empty list view when using widgets, this would block touches on the widget
         mainActivity.emptyListView.setVisibility(View.GONE);
+        widgetArea.finishEdit();
         widgetArea.removeAllViews();
         String widgetsConfString = prefs.getString(WIDGET_PREF_KEY, "");
         String[] widgetsConf = widgetsConfString.split(";");
@@ -366,23 +362,23 @@ class Widgets extends Forwarder {
 
         hostView.setLongClickable(true);
         hostView.setOnLongClickListener(v -> {
-            final AppWidgetHostView widgetWithMenuCurrentlyDisplayed = (AppWidgetHostView) v;
-            final AppWidgetProviderInfo currentAppWidgetInfo = mAppWidgetManager.getAppWidgetInfo(widgetWithMenuCurrentlyDisplayed.getAppWidgetId());
-
-            ArrayAdapter<ListPopup.Item> popupMenuAdapter = new ArrayAdapter<>(mainActivity, R.layout.popup_list_item);
-            buildPopupMenu(mainActivity, popupMenuAdapter, currentAppWidgetInfo, widgetWithMenuCurrentlyDisplayed);
-            ListPopup popupMenu = new ListPopup(mainActivity);
-            popupMenu.setAdapter(popupMenuAdapter);
-            popupMenu.setOnItemClickListener((adapter, view, position) -> {
-                @StringRes int stringId = ((ListPopup.Item) adapter.getItem(position)).stringId;
-                popupMenuClickHandler(stringId, widgetWithMenuCurrentlyDisplayed);
-            });
-            mainActivity.registerPopup(popupMenu);
-            popupMenu.show(hostView);
+            widgetArea.beginEdit(v);
             return true;
         });
+        widgetArea.place(hostView, height, getWidgetSpacingPx());
+    }
 
-        widgetArea.addView(hostView);
+    private void showWidgetMenu(AppWidgetHostView hostView) {
+        AppWidgetProviderInfo info = mAppWidgetManager.getAppWidgetInfo(hostView.getAppWidgetId());
+        if (info == null) return;
+        ArrayAdapter<ListPopup.Item> adapter = new ArrayAdapter<>(mainActivity, R.layout.popup_list_item);
+        if (isReconfigurable(info)) adapter.add(new ListPopup.Item(mainActivity, R.string.menu_widget_settings));
+        adapter.add(new ListPopup.Item(mainActivity, R.string.menu_widget_remove));
+        ListPopup popup = new ListPopup(mainActivity);
+        popup.setAdapter(adapter);
+        popup.setOnItemClickListener((parent, view, position) -> popupMenuClickHandler(((ListPopup.Item) parent.getItem(position)).stringId, hostView));
+        mainActivity.registerPopup(popup);
+        popup.show(hostView);
     }
 
     private void buildPopupMenu(Context context, ArrayAdapter<ListPopup.Item> adapter, AppWidgetProviderInfo currentAppWidgetInfo, AppWidgetHostView widgetWithMenuCurrentlyDisplayed) {

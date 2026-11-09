@@ -21,7 +21,7 @@
         android:fillViewport="true">
 
         <!-- Vertically scrolling widget area: hosts an unlimited number of widgets in minimalistic mode -->
-        <LinearLayout
+        <fr.neamar.kiss.ui.WidgetGrid
             android:id="@+id/widgetLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

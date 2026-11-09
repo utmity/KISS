@@ -73,13 +73,14 @@ public class WidgetView extends AppWidgetHostView {
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
-                if (Math.abs(ev.getX() - xPos) > 5 || Math.abs(ev.getY() - yPos) > 5) {
+                if (Math.abs(ev.getX() - xPos) > ViewConfiguration.get(getContext()).getScaledTouchSlop() || Math.abs(ev.getY() - yPos) > ViewConfiguration.get(getContext()).getScaledTouchSlop()) {
                     mHasPerformedLongPress = false;
                     cancelPendingLongPress();
                 }
                 break;
             }
 
+            case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 mHasPerformedLongPress = false;
