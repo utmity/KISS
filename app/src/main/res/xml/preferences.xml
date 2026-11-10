@@ -333,7 +333,7 @@
         <PreferenceCategory
             app:key="gestures-holder"
             app:title="@string/gestures">
-            <ListPreference app:key="widget-swipe-mode" app:defaultValue="edge"
+            <ListPreference app:key="widget-swipe-mode" app:defaultValue="auto"
                 app:title="@string/widget_swipe_mode" app:entries="@array/widgetSwipeModes"
                 app:entryValues="@array/widgetSwipeModeValues" app:useSimpleSummaryProvider="true" />
             <ListPreference app:key="widget-swipe-distance" app:defaultValue="48"

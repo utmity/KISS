@@ -43,7 +43,7 @@ public class WidgetView extends AppWidgetHostView {
         int action = event.getActionMasked();
         if (action == MotionEvent.ACTION_DOWN) {
             swipeOwned = false;
-            String mode = prefs.getString("widget-swipe-mode", "edge");
+            String mode = prefs.getString("widget-swipe-mode", "auto");
             float density = getResources().getDisplayMetrics().density;
             float edge = 24 * density;
             boolean atEdge = event.getX() < edge || event.getX() > getWidth() - edge
