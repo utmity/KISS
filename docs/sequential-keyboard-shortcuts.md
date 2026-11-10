@@ -2,7 +2,11 @@
 
 ベース: `feat/widget-grid-swipe-integration` / `f89fdf1f1f8f99d20f4e0fda4bf9fc86bc2b0a8a`
 
-作業ブランチ: `feat/t2e-sequential-keyboard-shortcuts`
+ショートカット実装ブランチ: `feat/t2e-sequential-keyboard-shortcuts`
+
+共存用Debug APKブランチ: `feat/t2e-sequence-debug-coexist`。
+ショートカット実装コミット`10184a0b`をベースに、Debug版のアプリIDと表示名のみ変更。
+署名設定・ウィジェット・ショートカットの実装は維持する。
 
 ## 設定と操作
 
@@ -90,6 +94,7 @@ lint: エラー0件、警告22件、ヒント3件（依存関係や既存コー�
 - ウィジェットの自由配置、サイズ変更、ドラッグ移動、ウィジェット上スワイプを回帰確認。
 
 ADBにはTitan_2と報告する端末が見えたが、APKインストールや端末設定の変更は行っていない。
-APKのapplicationIdはベースと同じ`fr.neamar.kiss.widgets.debug`。
-同じIDのウィジェット検証版が既にある場合は更新対象となる。署名が異なれば更新できない。
-署名不一致を解消するためのアンインストールは設定・配置データを消すため、自動では行わない。
+共存用APKのapplicationIdは`fr.neamar.kiss.sequence.debug`、表示名は`KISS Sequence Debug`。
+旧版`fr.neamar.kiss.widgets.debug`とは別アプリとしてインストールされる。
+旧版のアンインストールは不要。設定やウィジェット配置は別管理であり、新版には自動移行されない。
+固定署名鍵の運用案と今回の署名証明書情報は`sequence-debug-signing.md`を参照。
