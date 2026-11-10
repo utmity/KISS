@@ -2,6 +2,29 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     app:title="@string/activity_setting">
     <PreferenceScreen
+        app:key="keyboard-shortcuts"
+        app:title="@string/keyboard_shortcuts_title"
+        app:summary="@string/keyboard_shortcuts_summary">
+        <Preference
+            app:selectable="false"
+            app:title="@string/keyboard_shortcuts_notice_title"
+            app:summary="@string/keyboard_shortcuts_notice" />
+        <SwitchPreference
+            app:key="keyboard-long-press-enabled"
+            app:defaultValue="false"
+            app:title="@string/keyboard_shortcuts_enable" />
+        <fr.neamar.kiss.preference.RangeEditTextPreference
+            app:key="keyboard-long-press-timeout"
+            app:defaultValue="700"
+            app:minValue="200"
+            app:maxValue="2000"
+            app:title="@string/keyboard_shortcuts_timeout"
+            app:useSimpleSummaryProvider="true" />
+        <PreferenceCategory
+            app:key="keyboard-shortcuts-keys"
+            app:title="@string/keyboard_shortcuts_keys" />
+    </PreferenceScreen>
+    <PreferenceScreen
         app:key="history_category"
         app:summary="@string/history_settings_summary"
         app:title="@string/title_history">

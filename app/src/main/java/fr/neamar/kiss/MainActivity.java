@@ -47,6 +47,8 @@ import fr.neamar.kiss.adapter.RecordAdapter;
 import fr.neamar.kiss.broadcast.IncomingCallHandler;
 import fr.neamar.kiss.dataprovider.simpleprovider.SearchProvider;
 import fr.neamar.kiss.forwarder.ForwarderManager;
+import fr.neamar.kiss.keyboard.KeyboardShortcuts;
+import fr.neamar.kiss.ui.KeyboardShortcutLayout;
 import fr.neamar.kiss.pojo.SearchPojo;
 import fr.neamar.kiss.result.Result;
 import fr.neamar.kiss.searcher.QueryInterface;
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
      * View for the Search text
      */
     public SearchEditText searchEditText;
+    private KeyboardShortcuts keyboardShortcuts;
 
     /**
      * Main list view
@@ -246,6 +249,8 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
         this.rightHandSideButtonsWrapper = findViewById(R.id.rightHandSideButtonsWrapper);
         this.menuButton = findViewById(R.id.menuButton);
         this.searchEditText = findViewById(R.id.searchEditText);
+        keyboardShortcuts = new KeyboardShortcuts(this, searchEditText);
+        ((KeyboardShortcutLayout) findViewById(R.id.keyboardShortcutRoot)).setShortcuts(keyboardShortcuts);
         this.loaderSpinner = findViewById(R.id.loaderBar);
         this.leftHandSideButtonsWrapper = findViewById(R.id.leftHandSideButtonsWrapper);
         this.launcherButton = findViewById(R.id.launcherButton);
@@ -455,6 +460,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     protected void onPause() {
+        if (keyboardShortcuts != null) keyboardShortcuts.leaveSession();
         super.onPause();
         forwarderManager.onPause();
     }
@@ -475,6 +481,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
+        if (keyboardShortcuts != null) keyboardShortcuts.leaveSession();
         super.onNewIntent(intent);
 
         //Set the intent so KISS can tell when it was launched as an assistant
@@ -621,6 +628,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            if (keyboardShortcuts != null) keyboardShortcuts.cancel();
             View v = getCurrentFocus();
             if (v instanceof SearchEditText) {
                 SearchEditText edit = ((SearchEditText) v);
@@ -922,6 +930,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
+        if (!hasFocus && keyboardShortcuts != null) keyboardShortcuts.leaveSession();
         super.onWindowFocusChanged(hasFocus);
         systemUiVisibilityHelper.onWindowFocusChanged(hasFocus);
         if (showKeyboardOnFocus != null) {

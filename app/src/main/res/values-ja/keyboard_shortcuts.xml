@@ -1,0 +1,11 @@
+<resources>
+    <string name="keyboard_shortcuts_title">物理キーボードのショートカット</string>
+    <string name="keyboard_shortcuts_summary">Ctrl＋A〜Zの長押しでアプリを起動</string>
+    <string name="keyboard_shortcuts_notice_title">Ctrlキーとの同時押しが必要です</string>
+    <string name="keyboard_shortcuts_notice">最初に端末標準の文字キーショートカットを解除してください。KISSの検索欄でCtrlと登録した文字キーを押し続けると起動します。通常の文字入力はIMEで処理します。登録したCtrlの組み合わせは専用操作となり、短押しでは何もしません。Shift・Alt・Metaとの併用は対象外です。Ctrlを離す、別キーを押す、画面に触れるとキャンセルします。文字キー単独の長押しの代替機能です。</string>
+    <string name="keyboard_shortcuts_enable">Ctrl＋文字キーの長押しを有効にする</string>
+    <string name="keyboard_shortcuts_timeout">長押し時間（200〜2000ミリ秒）</string>
+    <string name="keyboard_shortcuts_keys">アプリの割り当て</string>
+    <string name="keyboard_shortcuts_none">未割り当て</string>
+    <string name="keyboard_shortcuts_missing">割り当てたアプリを利用できません。ショートカット設定を確認してください。</string>
+</resources>

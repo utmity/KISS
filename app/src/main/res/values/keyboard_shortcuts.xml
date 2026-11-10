@@ -1,0 +1,12 @@
+<!-- This fork ships English and Japanese; other locales use the English fallback. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="keyboard_shortcuts_title">Physical keyboard shortcuts</string>
+    <string name="keyboard_shortcuts_summary">Hold Ctrl + A–Z to launch an app</string>
+    <string name="keyboard_shortcuts_notice_title">Ctrl is required</string>
+    <string name="keyboard_shortcuts_notice">Remove the phone’s built-in letter shortcuts first. In KISS search, hold Ctrl and an assigned letter together. Plain letters keep using your IME. Assigned Ctrl chords are reserved: a short press does nothing. Shift, Alt and Meta combinations are not shortcuts. Release Ctrl, press another key or touch the screen to cancel. This is an alternative to letter-only long press.</string>
+    <string name="keyboard_shortcuts_enable">Enable Ctrl + letter long press</string>
+    <string name="keyboard_shortcuts_timeout">Hold duration (200–2000 ms)</string>
+    <string name="keyboard_shortcuts_keys">App assignments</string>
+    <string name="keyboard_shortcuts_none">Not assigned</string>
+    <string name="keyboard_shortcuts_missing">The assigned app is unavailable. Check the shortcut settings.</string>
+</resources>
