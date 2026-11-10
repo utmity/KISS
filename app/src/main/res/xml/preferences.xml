@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     app:title="@string/activity_setting">
+    <PreferenceScreen app:key="sequential-shortcuts" app:title="@string/sequence_title"
+        app:summary="@string/sequence_summary">
+        <SwitchPreference app:key="sequential-shortcuts-enabled" app:defaultValue="false"
+            app:title="@string/sequence_enabled" />
+        <ListPreference app:key="sequential-shortcuts-prefix" app:defaultValue="62"
+            app:title="@string/sequence_prefix" app:entries="@array/sequence_prefix_labels"
+            app:entryValues="@array/sequence_prefix_values" app:useSimpleSummaryProvider="true" />
+        <fr.neamar.kiss.preference.RangeEditTextPreference
+            app:key="sequential-shortcuts-timeout" app:defaultValue="800"
+            app:title="@string/sequence_timeout" app:minValue="300" app:maxValue="2000"
+            app:useSimpleSummaryProvider="true" />
+        <fr.neamar.kiss.preference.SequentialShortcutPreference
+            app:key="sequential-shortcuts-bindings" app:title="@string/sequence_assignments"
+            app:summary="@string/sequence_assignments_summary" />
+        <Preference app:selectable="false" app:summary="@string/sequence_limitations" />
+    </PreferenceScreen>
     <PreferenceScreen
         app:key="history_category"
         app:summary="@string/history_settings_summary"
