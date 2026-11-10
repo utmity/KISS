@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Other locales intentionally fall back to English until translated. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="sequence_title">Keyboard shortcuts</string>
+    <string name="sequence_summary">Release a prefix key, then press an app key</string>
+    <string name="sequence_enabled">Enable two-key shortcuts</string>
+    <string name="sequence_prefix">Prefix key</string>
+    <string name="sequence_timeout">Wait time (ms, 300–2000)</string>
+    <string name="sequence_assignments">App assignments (A–Z, 0–9)</string>
+    <string name="sequence_assignments_summary">Register, change or remove an app for each second key</string>
+    <string name="sequence_unassigned">Unassigned / remove</string>
+    <string name="sequence_other_profile">Other profile</string>
+    <string name="sequence_unavailable">App unavailable — select to change or remove</string>
+    <string name="sequence_limitations">Only active with an empty, focused search field. After normal typing, shortcuts remain blocked until a new input session (for example, leave and return to KISS). IME composition takes priority. Keys intercepted by Android, the IME or device shortcuts cannot be used. Space, Tab, Caps Lock and letter keys require verification on your device. Caps Lock may also change the system caps state.</string>
+</resources>

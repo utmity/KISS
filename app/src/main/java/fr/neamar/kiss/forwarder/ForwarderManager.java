@@ -30,6 +30,7 @@ public class ForwarderManager extends Forwarder {
         this.interfaceTweaks = new InterfaceTweaks(mainActivity);
         this.liveWallpaperForwarder = new LiveWallpaper(mainActivity);
         this.experienceTweaks = new ExperienceTweaks(mainActivity);
+        widgetsForwarder.setWidgetSwipeListener(experienceTweaks::onWidgetSwipe);
         this.favoritesForwarder = new Favorites(mainActivity);
         this.shortcutsForwarder = new OreoShortcuts(mainActivity);
         this.notificationForwarder = new Notification(mainActivity);

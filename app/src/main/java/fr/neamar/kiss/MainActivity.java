@@ -246,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
         this.rightHandSideButtonsWrapper = findViewById(R.id.rightHandSideButtonsWrapper);
         this.menuButton = findViewById(R.id.menuButton);
         this.searchEditText = findViewById(R.id.searchEditText);
+        searchEditText.setSequentialShortcuts(new fr.neamar.kiss.ui.SequentialShortcuts(this, searchEditText));
         this.loaderSpinner = findViewById(R.id.loaderBar);
         this.leftHandSideButtonsWrapper = findViewById(R.id.leftHandSideButtonsWrapper);
         this.launcherButton = findViewById(R.id.launcherButton);
@@ -455,6 +456,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     protected void onPause() {
+        searchEditText.cancelKeySequence();
         super.onPause();
         forwarderManager.onPause();
     }
@@ -475,6 +477,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
+        searchEditText.cancelKeySequence();
         super.onNewIntent(intent);
 
         //Set the intent so KISS can tell when it was launched as an assistant
@@ -501,10 +504,14 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     public void clearSearchText() {
         searchEditText.setText("");
+        searchEditText.onSearchCleared();
         searchEditText.setCursorVisible(false);
     }
 
     private void handleOnBackPressed() {
+        searchEditText.cancelKeySequence();
+        fr.neamar.kiss.ui.WidgetGrid grid = findViewById(R.id.widgetLayout);
+        if (grid != null && grid.finishEdit()) return;
         if (mPopup != null) {
             mPopup.dismiss();
         } else if (isViewingAllApps()) {
@@ -620,6 +627,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getActionMasked() == MotionEvent.ACTION_DOWN) searchEditText.cancelKeySequence();
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             View v = getCurrentFocus();
             if (v instanceof SearchEditText) {
@@ -922,6 +930,7 @@ public class MainActivity extends AppCompatActivity implements QueryInterface, K
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
+        if (!hasFocus && searchEditText != null) searchEditText.cancelKeySequence();
         super.onWindowFocusChanged(hasFocus);
         systemUiVisibilityHelper.onWindowFocusChanged(hasFocus);
         if (showKeyboardOnFocus != null) {

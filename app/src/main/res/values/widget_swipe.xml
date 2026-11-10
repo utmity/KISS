@@ -1,0 +1,8 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="widget_swipe_mode">Swipes over widgets</string>
+    <string name="widget_swipe_distance">Widget swipe distance</string>
+    <string-array name="widgetSwipeModes"><item>From widget edges (24 dp)</item><item>Anywhere except scrolling content</item><item>Off</item></string-array>
+    <string-array name="widgetSwipeModeValues" translatable="false"><item>edge</item><item>auto</item><item>off</item></string-array>
+    <string-array name="widgetSwipeDistances"><item>48 dp</item><item>72 dp</item><item>96 dp</item></string-array>
+    <string-array name="widgetSwipeDistanceValues" translatable="false"><item>48</item><item>72</item><item>96</item></string-array>
+</resources>

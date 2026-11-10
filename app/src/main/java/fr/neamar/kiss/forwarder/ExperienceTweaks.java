@@ -158,67 +158,6 @@ public class ExperienceTweaks extends Forwarder {
                 return true;
             }
 
-            private void doAction(String source, String action) {
-                switch (action) {
-                    case "display-notifications":
-                        displayNotificationDrawer();
-                        break;
-                    case "display-quicksettings":
-                        displayQuickSettings();
-                        break;
-                    case "display-keyboard":
-                        mainActivity.showKeyboard();
-                        break;
-                    case "hide-keyboard":
-                        mainActivity.hideKeyboard();
-                        break;
-                    case "display-apps":
-                        if (mainActivity.isViewingSearchResults()) {
-                            mainActivity.displayKissBar(true);
-                        }
-                        break;
-                    case "display-history":
-                        // if minimalistic mode is enabled,
-                        if (isMinimalisticModeEnabled()) {
-                            // and we're currently in minimalistic mode with no results,
-                            // and we're not looking at the app list
-                            if (mainActivity.isViewingSearchResults() && TextUtils.isEmpty(mainActivity.searchEditText.getText())) {
-                                if (mainActivity.adapter == null || mainActivity.adapter.isEmpty()) {
-                                    mainActivity.showHistory();
-                                }
-                            }
-                        }
-
-                        if (isMinimalisticModeEnabledForFavorites()) {
-                            mainActivity.setFavoritesBarVisible(true);
-                        }
-                        break;
-                    case "display-favorites":
-                        // Not provided as an option for the gestures, but useful if you only want to display favorites on tap,
-                        // not history.
-                        mainActivity.setFavoritesBarVisible(true);
-                        break;
-                    case "display-menu":
-                        mainActivity.openContextMenu(mainActivity.menuButton);
-                        break;
-                    case "go-to-homescreen":
-                        mainActivity.displayKissBar(false);
-                        if (!shouldShowKeyboard()) {
-                            mainActivity.hideKeyboard();
-                        }
-                        break;
-                    case "launch-pojo": {
-                        String launchId = prefs.getString(source + "-launch-id", "");
-                        Pojo item = KissApplication.getApplication(mainActivity).getDataHandler().getItemById(launchId);
-                        if (item != null) {
-                            Result<?> result = Result.fromPojo(mainActivity, item);
-                            result.fastLaunch(mainActivity, ExperienceTweaks.this.mainEmptyView);
-                        }
-                        break;
-                    }
-                }
-            }
-
             /**
              * Are we allowed to run our AccessibilityService?
              */
@@ -241,6 +180,74 @@ public class ExperienceTweaks extends Forwarder {
         });
 
         keyboardManager = new KeyboardManager();
+    }
+
+    void onWidgetSwipe(String direction) {
+        String source = "gesture-" + direction;
+        String fallback = "down".equals(direction) ? "display-notifications"
+                : "up".equals(direction) ? "display-keyboard" : "display-apps";
+        doAction(source, prefs.getString(source, fallback));
+    }
+
+    private void doAction(String source, String action) {
+        switch (action) {
+            case "display-notifications":
+                displayNotificationDrawer();
+                break;
+            case "display-quicksettings":
+                displayQuickSettings();
+                break;
+            case "display-keyboard":
+                mainActivity.showKeyboard();
+                break;
+            case "hide-keyboard":
+                mainActivity.hideKeyboard();
+                break;
+            case "display-apps":
+                if (mainActivity.isViewingSearchResults()) {
+                    mainActivity.displayKissBar(true);
+                }
+                break;
+            case "display-history":
+                // if minimalistic mode is enabled,
+                if (isMinimalisticModeEnabled()) {
+                    // and we're currently in minimalistic mode with no results,
+                    // and we're not looking at the app list
+                    if (mainActivity.isViewingSearchResults() && TextUtils.isEmpty(mainActivity.searchEditText.getText())) {
+                        if (mainActivity.adapter == null || mainActivity.adapter.isEmpty()) {
+                            mainActivity.showHistory();
+                        }
+                    }
+                }
+
+                if (isMinimalisticModeEnabledForFavorites()) {
+                    mainActivity.setFavoritesBarVisible(true);
+                }
+                break;
+            case "display-favorites":
+                // Not provided as an option for the gestures, but useful if you only want to display favorites on tap,
+                // not history.
+                mainActivity.setFavoritesBarVisible(true);
+                break;
+            case "display-menu":
+                mainActivity.openContextMenu(mainActivity.menuButton);
+                break;
+            case "go-to-homescreen":
+                mainActivity.displayKissBar(false);
+                if (!shouldShowKeyboard()) {
+                    mainActivity.hideKeyboard();
+                }
+                break;
+            case "launch-pojo": {
+                String launchId = prefs.getString(source + "-launch-id", "");
+                Pojo item = KissApplication.getApplication(mainActivity).getDataHandler().getItemById(launchId);
+                if (item != null) {
+                    Result<?> result = Result.fromPojo(mainActivity, item);
+                    result.fastLaunch(mainActivity, ExperienceTweaks.this.mainEmptyView);
+                }
+                break;
+            }
+        }
     }
 
     void onCreate() {
