@@ -19,7 +19,7 @@ import fr.neamar.kiss.ui.WidgetGrid;
 public class RealWidgetTest {
     @org.junit.BeforeClass public static void disableUnrelatedProviders() {
         Context c=InstrumentationRegistry.getInstrumentation().getTargetContext();
-        PreferenceManager.getDefaultSharedPreferences(c).edit().putBoolean("enable-contacts",false).putBoolean("enable-phone",false).commit();
+        PreferenceManager.getDefaultSharedPreferences(c).edit().putBoolean("enable-contacts",false).putBoolean("enable-phone",false).putBoolean("force-portrait",false).commit();
     }
     @Rule public ActivityScenarioRule<MainActivity> rule = new ActivityScenarioRule<>(MainActivity.class);
     @Test public void realClockLongPressDragAndActivityRestore() {
@@ -64,8 +64,10 @@ public class RealWidgetTest {
                 assertTrue(manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH) > 0);
                 fr.neamar.kiss.ui.WidgetDisplaySettings.setScalePercent(a,id,150);
                 fr.neamar.kiss.ui.WidgetDisplaySettings.setIgnoresLimits(a,id,true);
-                a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             });
+            // Rotate the emulator display; the activity restores the user's orientation
+            // preference on recreation, so a one-off setRequestedOrientation is insufficient.
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().setRotation(android.app.UiAutomation.ROTATION_FREEZE_90);
             final boolean[] landscape={false};
             long deadline=SystemClock.uptimeMillis()+8000;
             while (!landscape[0] && SystemClock.uptimeMillis()<deadline) {
@@ -86,9 +88,10 @@ public class RealWidgetTest {
                 int expected=(int)(view.getWidth()/density)-(int)((padding.left+padding.right)/density);
                 assertEquals(expected,manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH),1);
                 if (android.os.Build.VERSION.SDK_INT>=31) assertNotNull(manager.getAppWidgetOptions(id).getParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES));
-                a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             });
         } finally {
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().setRotation(android.app.UiAutomation.ROTATION_FREEZE_0);
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().setRotation(android.app.UiAutomation.ROTATION_UNFREEZE);
             PreferenceManager.getDefaultSharedPreferences(context).edit().putString("widgets-conf","").remove("widget-grid-v1-"+id).commit();
             host.deleteAppWidgetId(id);
             fr.neamar.kiss.ui.WidgetDisplaySettings.remove(context,id);
