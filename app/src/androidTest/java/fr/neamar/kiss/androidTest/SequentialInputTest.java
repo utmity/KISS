@@ -45,7 +45,14 @@ public class SequentialInputTest {
 
     private KeyEvent key(int code, int action, long down, int repeat) {
         return new KeyEvent(down, SystemClock.uptimeMillis(), action, code, repeat,
-                0, 1, 0, 0, InputDevice.SOURCE_KEYBOARD);
+                0, 1, 0, 0, InputDevice.SOURCE_KEYBOARD) {
+            // Device 1 can be a non-printing virtual control on older emulators.
+            // Model a QWERTY hardware keyboard consistently for these synthetic events.
+            @Override public boolean isPrintingKey() {
+                return android.view.KeyCharacterMap.load(android.view.KeyCharacterMap.VIRTUAL_KEYBOARD)
+                        .isPrintingKey(getKeyCode());
+            }
+        };
     }
 
     private SearchEditText setup(MainActivity activity, boolean enabled) {

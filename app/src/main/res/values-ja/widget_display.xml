@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_display_settings">ウィジェットのサイズと表示</string>
+    <string name="widget_ignore_limits">サイズ制限を無視</string>
+    <string name="widget_scale_explanation" formatted="false">配置領域は右下のハンドルで変更します。表示倍率は内容だけを変更します。100%未満では余白が増え、100%超では内容が切れる場合があります。Provider固有のレイアウト制約は残ります。</string>
+    <string name="widget_scale_value">表示倍率：%1$d%%</string>
+    <string name="widget_scale_reset">倍率を100%に戻す</string>
+</resources>

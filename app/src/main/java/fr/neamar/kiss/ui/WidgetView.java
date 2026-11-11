@@ -33,6 +33,8 @@ public class WidgetView extends AppWidgetHostView {
     private final WidgetSwipe swipe = new WidgetSwipe();
     private java.util.function.Consumer<String> swipeListener;
     private boolean swipeOwned;
+    private int notifiedWidth = -1, notifiedHeight = -1;
+    private final java.util.WeakHashMap<android.view.View, float[]> originalScales = new java.util.WeakHashMap<>();
 
     public void setSwipeListener(java.util.function.Consumer<String> listener) {
         swipeListener = listener;
@@ -104,6 +106,14 @@ public class WidgetView extends AppWidgetHostView {
             for (int i = group.getChildCount() - 1; i >= 0; i--) {
                 android.view.View child = group.getChildAt(i);
                 float cx = x + group.getScrollX() - child.getLeft(), cy = y + group.getScrollY() - child.getTop();
+                // Match ViewGroup's touch dispatch for scaled RemoteViews descendants.
+                if (!child.getMatrix().isIdentity()) {
+                    android.graphics.Matrix inverse = new android.graphics.Matrix();
+                    if (!child.getMatrix().invert(inverse)) continue;
+                    float[] point = {cx, cy};
+                    inverse.mapPoints(point);
+                    cx = point[0]; cy = point[1];
+                }
                 if (child.getVisibility() == VISIBLE && cx >= 0 && cy >= 0 && cx < child.getWidth() && cy < child.getHeight()
                         && scrollableAt(child, cx, cy)) return true;
             }
@@ -249,18 +259,47 @@ public class WidgetView extends AppWidgetHostView {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        // Zoom only RemoteViews content. The host, editor, grid and gesture thresholds
+        // retain physical coordinates. Android maps child touch events through this matrix.
+        float scale = WidgetDisplaySettings.scalePercent(getContext(), getAppWidgetId()) / 100f;
+        for (int i = 0; i < getChildCount(); i++) {
+            android.view.View child = getChildAt(i);
+            float[] original = originalScales.get(child);
+            if (scale == 1f) {
+                if (original != null) {
+                    child.setScaleX(original[0]); child.setScaleY(original[1]);
+                    originalScales.remove(child);
+                }
+                // Leave an unmodified provider's own transform alone at the default 100%.
+            } else {
+                if (original == null) {
+                    original = new float[]{child.getScaleX(), child.getScaleY()};
+                    originalScales.put(child, original);
+                }
+                // Default View pivot follows its center; retain any explicit provider pivot.
+                child.setScaleX(original[0] * scale); child.setScaleY(original[1] * scale);
+            }
+        }
+        notifyWidgetSize(getWidth(), getHeight());
+    }
 
-        // calculate size in dips
+    private void notifyWidgetSize(int w, int h) {
+        if (w <= 0 || h <= 0 || getAppWidgetInfo() == null) return;
         float density = getResources().getDisplayMetrics().density;
         int widthDips = (int) (w / density);
         int heightDips = (int) (h / density);
+        if (widthDips == notifiedWidth && heightDips == notifiedHeight) return;
+        // Both framework overloads subtract the default widget padding themselves.
+        // Zoom does not change the occupied viewport advertised to the provider.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            updateAppWidgetSize(Bundle.EMPTY, Collections.singletonList(new SizeF(widthDips, heightDips)));
+            updateAppWidgetSize(new Bundle(), Collections.singletonList(new SizeF(widthDips, heightDips)));
         } else {
-            updateAppWidgetSize(null, widthDips, heightDips, widthDips, heightDips);
+            updateAppWidgetSize(new Bundle(), widthDips, heightDips, widthDips, heightDips);
         }
+        notifiedWidth = widthDips;
+        notifiedHeight = heightDips;
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

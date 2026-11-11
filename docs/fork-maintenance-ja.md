@@ -17,7 +17,7 @@ MainActivity等のフックを小さく保つ。
 
 DebugのIDは`fr.neamar.kiss.sequence.debug`、表示名は`KISS Sequence Debug`を維持する。
 通常版`fr.neamar.kiss`と旧検証版`fr.neamar.kiss.widgets.debug`には変更を加えない。
-versionCodeは224から225へ増加。ReleaseのIDと署名設定は変更しない。
+versionCodeは224→225→226へ増加。ReleaseのIDと署名設定は変更しない。
 
 `widgets-conf`、`widget-grid-v1-<widgetId>`、既存AppWidgetHost ID、
 `widget-swipe-mode`、`sequential-shortcuts-*`のキーと保存形式は維持する。
@@ -57,7 +57,7 @@ e5d4d9166737742cc479c1e326d2200e111ca95c457b22f81eeef0e8425918fc
 日常利用している共存版の元APKを保管し、同じPCで次を実行する。
 
 ```powershell
-git switch master
+git switch feat/widget-scale-and-safe-updates
 git pull --ff-only
 .\scripts\build-sequence-update.ps1 -ReferenceApk 'D:\APK保管\KISS-sequence-debug-coexist.apk'
 ```
@@ -72,7 +72,18 @@ SDK・JDK・依存関係の導入は必要。既存署名鍵が無い場合は�
 
 スクリプトは端末を操作しない。更新時はこの検証済みAPKを通常の上書きインストールで使う。
 アプリ削除・`pm clear`・自動バックアップ復元は不要。
-将来の変更でもversionCodeを減らさず、配布更新では増加させる。
+将来の変更でも配布更新のversionCodeを必ず増加させる。同値もスクリプトで拒否する。
+`-ReferenceApk`には最後にインストールしたAPKを指定する（古いAPKを指定すると、
+それより新しい端末内の版との比較にはならない）。スクリプトは端末を読み書きしない。
+既存ファイルの署名・ID・バージョンだけ再検査する場合:
+
+```powershell
+.\scripts\build-sequence-update.ps1 -ReferenceApk 'D:\APK保管\前回.apk' -VerifyApk 'D:\APK保管\今回.apk'
+```
+
+ビルド前にGradleのDebug署名設定の公開メタデータを取得し、既存鍵のパスと固定証明書を照合する。
+Titan IMEなど別プロジェクトの鍵を指定した場合も一致しなければ停止する。
+配布APKの検証は別途apksignerとaaptで行う。署名設定の全文はログへ出さない。
 
 ## GitHub Actions
 
@@ -83,7 +94,7 @@ PRはGitHubの試験マージcommit、pushはそのcommitを検証する。
 成果物名とrunのcommit情報で検証対象を特定できる。
 
 - JVMユニットテスト、lint、Debug APK、Release APKのビルド。
-- Android 16の使い捨てエミュレーターでWidgetGrid / WidgetSwipe / RealWidget / SequentialInput / WidgetScrollのUIテスト。
+- API 29 / 36の使い捨てエミュレーターでWidgetGrid / WidgetSwipe / RealWidget / SequentialInput / WidgetScroll / WidgetSizingのUIテスト。
 - テスト結果・lintレポートのみ14日保存。日常利用の更新用APKは上記ローカル手順から取得する。
 - 実機のデータを書き換え得るUIテストは、普段使う端末に対して実行しない。
 - RealWidgetTestはシステムのAnalogAppWidgetProviderがない環境ではskipする。
@@ -97,3 +108,25 @@ PRはGitHubの試験マージcommit、pushはそのcommitを検証する。
 固有操作は実機で最終確認する。自動で端末へインストールはしない。
 
 以前の各機能ドキュメントのAPK配布・署名運用より、この文書の手順を優先する。
+
+## 鍵の現状と管理方式の比較（2026-11-11）
+
+現在のPCでは`C:\Users\kaben\.android\debug.keystore`が存在し、Gradle Debug設定の公開証明書が
+上記固定指紋と一致する。鍵の生成・移動・パスワード変更・GitHub登録はしていない。
+`.android`のファイル名情報と`Documents\Codex`内の一般的な鍵／暗号化鍵の拡張子を調査した範囲では、
+別のバックアップは確認できていない。別ディスク、暗号化コンテナ、クラウド、オフライン媒体の
+バックアップ有無は未確認。「バックアップ済み」とは判断しない。
+
+| 方式 | 利点 | 注意点 |
+| --- | --- | --- |
+| 現在のPC内の鍵・ローカル署名 | 鍵をCIへ送らず、既存APKを継続更新できる | PC故障・削除に備えた復元可能なバックアップが必要。PCのアクセス権／ディスク保護に依存 |
+| GitHub Actions Environment Secrets | 手動承認付きCI署名を自動化できる | 実行コードから鍵を読み出せるため、workflow・依存Action・承認者の保護が必要。ログの自動マスクは完全ではない |
+| 暗号化した同じ鍵を別媒体へ保管 | 元鍵を変更せずPC故障に備えられる | 復号情報を別管理し、復元テストが必要。暗号化ファイルと復号情報の同時漏洩に注意 |
+
+提案は「現在のローカル署名を維持し、同じ鍵の暗号化バックアップを別媒体に作り、隔離した
+復元先で証明書一致を確認する」。**保存先・暗号化方式・復号情報の管理先を所有者と確認してから
+実施する。今回は実施しない。** Debug鍵の標準的な保護だけを強い秘密保管と見なさない。
+APKや公開証明書から秘密鍵は復元できない。鍵紛失時も既存アプリは消さず、まず元鍵を探す。
+
+根拠: [Android署名](https://developer.android.com/studio/publish/app-signing)、
+[GitHub Actionsの安全な利用](https://docs.github.com/en/actions/reference/security/secure-use)。
