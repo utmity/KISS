@@ -97,7 +97,8 @@ public class WidgetSizingTest {
     @Test public void normalResizeHonorsMinimumMaximumAndDirection() {
         rule.getScenario().onActivity(a -> {
             setup(a, true); host.info.resizeMode = AppWidgetProviderInfo.RESIZE_HORIZONTAL;
-            host.info.minResizeWidth = 300; host.info.maxResizeWidth = 450;
+            host.info.minResizeWidth = 300;
+            if (android.os.Build.VERSION.SDK_INT >= 31) host.info.maxResizeWidth = 450;
             int rows = cell().rows;
             resize(-3, -100); assertEquals(2, cell().span); assertEquals(rows, cell().rows);
             resize(10, 10);

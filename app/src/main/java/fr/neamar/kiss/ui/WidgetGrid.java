@@ -131,6 +131,7 @@ public class WidgetGrid extends LinearLayout {
         if (selected == null) return false;
         Cell c = (Cell) selected.getLayoutParams();
         int unit = Math.max(1, getWidth() / 4);
+        int handle = handleSize();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 getParent().requestDisallowInterceptTouchEvent(true);
@@ -138,14 +139,14 @@ public class WidgetGrid extends LinearLayout {
                 if (x < selected.getLeft() || x > selected.getRight() || y < selected.getTop() || y > selected.getBottom()) {
                     finishEdit(); return true;
                 }
-                if (x >= selected.getRight() - row && y < selected.getTop() + row) {
+                if (x >= selected.getRight() - handle && y < selected.getTop() + handle) {
                     View target = selected;
                     finishEdit();
                     if (menu != null) menu.onClick(target);
                     return true;
                 }
                 snapshot();
-                resizing = x >= selected.getRight() - row && y >= selected.getBottom() - row;
+                resizing = x >= selected.getRight() - handle && y >= selected.getBottom() - handle;
                 dragging = true;
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -232,19 +233,25 @@ public class WidgetGrid extends LinearLayout {
         }
     }
 
+    private int handleSize() {
+        // Even a one-row cell must have distinct menu and resize hit regions.
+        return Math.max(1, Math.min(row, Math.min(selected.getWidth(), selected.getHeight()) / 2));
+    }
+
     @Override protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
         if (selected == null || selected.getParent() != this) return;
+        int handle = handleSize();
         paint.setColor(valid ? Color.rgb(0, 150, 220) : Color.RED);
         paint.setStrokeWidth(3 * getResources().getDisplayMetrics().density);
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawRect(selected.getLeft() + 2, selected.getTop() + 2, selected.getRight() - 2, selected.getBottom() - 2, paint);
         paint.setStyle(Paint.Style.FILL);
-        canvas.drawRect(selected.getRight() - row, selected.getBottom() - row, selected.getRight(), selected.getBottom(), paint);
-        canvas.drawRect(selected.getRight() - row, selected.getTop(), selected.getRight(), selected.getTop() + row, paint);
-        paint.setColor(Color.WHITE); paint.setTextSize(row / 2f);
-        canvas.drawText("↔", selected.getRight() - row * .85f, selected.getBottom() - row * .3f, paint);
-        canvas.drawText("⋮", selected.getRight() - row * .65f, selected.getTop() + row * .65f, paint);
+        canvas.drawRect(selected.getRight() - handle, selected.getBottom() - handle, selected.getRight(), selected.getBottom(), paint);
+        canvas.drawRect(selected.getRight() - handle, selected.getTop(), selected.getRight(), selected.getTop() + handle, paint);
+        paint.setColor(Color.WHITE); paint.setTextSize(handle / 2f);
+        canvas.drawText("↔", selected.getRight() - handle * .85f, selected.getBottom() - handle * .3f, paint);
+        canvas.drawText("⋮", selected.getRight() - handle * .65f, selected.getTop() + handle * .65f, paint);
     }
 
     @Override public void onViewRemoved(View child) {
