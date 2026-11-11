@@ -64,16 +64,14 @@ jobs:
           arch: x86_64
           profile: pixel_2
           disable-animations: true
-          script: |
-            bash ./gradlew installDebug installDebugAndroidTest --stacktrace
-            adb shell appwidget grantbind --package fr.neamar.kiss.sequence.debug --user 0
-            bash ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=fr.neamar.kiss.androidTest.WidgetGridTest,fr.neamar.kiss.androidTest.WidgetSwipeTest,fr.neamar.kiss.androidTest.RealWidgetTest,fr.neamar.kiss.androidTest.SequentialInputTest,fr.neamar.kiss.androidTest.WidgetScrollTest --stacktrace
+          script: bash scripts/run-custom-ui-tests.sh
       - name: Upload UI reports
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: android-ui-${{ github.sha }}
           path: |
+            app/build/custom-ui-reports/
             app/build/reports/androidTests/
             app/build/outputs/androidTest-results/
           retention-days: 14
