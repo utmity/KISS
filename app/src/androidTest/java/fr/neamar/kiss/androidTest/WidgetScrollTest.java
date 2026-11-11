@@ -37,19 +37,23 @@ public class WidgetScrollTest {
         rule.getScenario().onActivity(a -> {
             WidgetScrollView scroll = new WidgetScrollView(a);
             View child = new View(a);
+            // ScrollView measures its content with an unspecified height. A bare
+            // View has no intrinsic height, unlike the real widget grid.
+            child.setMinimumHeight(2000);
             child.setOnTouchListener((v, e) -> true);
             scroll.addView(child, new FrameLayout.LayoutParams(600, 2000));
             a.addContentView(scroll, new FrameLayout.LayoutParams(600, 600));
             scroll.measure(View.MeasureSpec.makeMeasureSpec(600, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(600, View.MeasureSpec.EXACTLY));
             scroll.layout(0, 0, 600, 600);
+            assertTrue("Fixture must overflow the viewport", child.getHeight() > scroll.getHeight());
             long down = SystemClock.uptimeMillis();
             event(scroll, down, MotionEvent.ACTION_DOWN, 1, 400);
             event(scroll, down, MotionEvent.ACTION_MOVE, 1, 300);
             assertEquals(0, scroll.getScrollY());
             event(scroll, down, MotionEvent.ACTION_POINTER_DOWN | (1 << MotionEvent.ACTION_POINTER_INDEX_SHIFT), 2, 300);
             event(scroll, down, MotionEvent.ACTION_MOVE, 2, 100);
-            assertTrue(scroll.getScrollY() > 0);
+            assertTrue("Two fingers should scroll overflowing content", scroll.getScrollY() > 0);
             event(scroll, down, MotionEvent.ACTION_CANCEL, 2, 100);
         });
     }
