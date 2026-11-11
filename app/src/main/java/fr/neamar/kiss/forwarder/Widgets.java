@@ -385,6 +385,7 @@ class Widgets extends Forwarder {
         if (info == null) return;
         ArrayAdapter<ListPopup.Item> adapter = new ArrayAdapter<>(mainActivity, R.layout.popup_list_item);
         if (isReconfigurable(info)) adapter.add(new ListPopup.Item(mainActivity, R.string.menu_widget_settings));
+        adapter.add(new ListPopup.Item(mainActivity, R.string.widget_display_settings));
         adapter.add(new ListPopup.Item(mainActivity, R.string.menu_widget_remove));
         ListPopup popup = new ListPopup(mainActivity);
         popup.setAdapter(adapter);
@@ -422,11 +423,14 @@ class Widgets extends Forwarder {
             // widget was detached between long-press and menu-item click
             return;
         }
-        if (stringId == R.string.menu_widget_settings) {
+        if (stringId == R.string.widget_display_settings) {
+            showDisplaySettings(widgetWithMenuCurrentlyDisplayed);
+        } else if (stringId == R.string.menu_widget_settings) {
             reConfigureAppWidget(widgetWithMenuCurrentlyDisplayed.getAppWidgetId());
         } else if (stringId == R.string.menu_widget_remove) {
             parent.removeView(widgetWithMenuCurrentlyDisplayed);
             mAppWidgetHost.deleteAppWidgetId(widgetWithMenuCurrentlyDisplayed.getAppWidgetId());
+            fr.neamar.kiss.ui.WidgetDisplaySettings.remove(mainActivity, widgetWithMenuCurrentlyDisplayed.getAppWidgetId());
             serializeState();
         } else if (stringId == R.string.menu_size_up) {
             int newHeight = getIncreasedLineHeight(widgetWithMenuCurrentlyDisplayed);
@@ -449,6 +453,52 @@ class Widgets extends Forwarder {
                 serializeState();
             }
         }
+    }
+
+    private void showDisplaySettings(AppWidgetHostView host) {
+        int id = host.getAppWidgetId();
+        android.widget.LinearLayout content = new android.widget.LinearLayout(mainActivity);
+        content.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padding = Math.round(20 * mainActivity.getResources().getDisplayMetrics().density);
+        content.setPadding(padding, padding, padding, padding);
+        android.widget.CheckBox ignore = new android.widget.CheckBox(mainActivity);
+        ignore.setText(R.string.widget_ignore_limits);
+        ignore.setChecked(fr.neamar.kiss.ui.WidgetDisplaySettings.ignoresLimits(mainActivity, id));
+        content.addView(ignore);
+        android.widget.TextView explanation = new android.widget.TextView(mainActivity);
+        explanation.setText(R.string.widget_scale_explanation);
+        content.addView(explanation);
+        android.widget.TextView label = new android.widget.TextView(mainActivity);
+        content.addView(label);
+        android.widget.SeekBar scale = new android.widget.SeekBar(mainActivity);
+        scale.setMax(30); // 50–200%, in 5% steps, including an exact 100% reset.
+        scale.setProgress((fr.neamar.kiss.ui.WidgetDisplaySettings.scalePercent(mainActivity, id) - 50) / 5);
+        label.setText(mainActivity.getString(R.string.widget_scale_value, 50 + scale.getProgress() * 5));
+        scale.setContentDescription(mainActivity.getString(R.string.widget_scale_value, 50 + scale.getProgress() * 5));
+        scale.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(android.widget.SeekBar bar, int progress, boolean fromUser) {
+                String value = mainActivity.getString(R.string.widget_scale_value, 50 + progress * 5);
+                label.setText(value);
+                bar.setContentDescription(value);
+            }
+            @Override public void onStartTrackingTouch(android.widget.SeekBar bar) { }
+            @Override public void onStopTrackingTouch(android.widget.SeekBar bar) { }
+        });
+        content.addView(scale);
+        android.widget.ScrollView scroll = new android.widget.ScrollView(mainActivity);
+        scroll.addView(content);
+        new android.app.AlertDialog.Builder(mainActivity)
+                .setTitle(R.string.widget_display_settings).setView(scroll)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setNeutralButton(R.string.widget_scale_reset, (dialog, which) -> {
+                    fr.neamar.kiss.ui.WidgetDisplaySettings.setScalePercent(mainActivity, id, 100);
+                    host.requestLayout();
+                })
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    fr.neamar.kiss.ui.WidgetDisplaySettings.setIgnoresLimits(mainActivity, id, ignore.isChecked());
+                    fr.neamar.kiss.ui.WidgetDisplaySettings.setScalePercent(mainActivity, id, 50 + scale.getProgress() * 5);
+                    host.requestLayout();
+                }).show();
     }
 
     /**

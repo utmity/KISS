@@ -4,7 +4,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 expected = {"WidgetGridTest": 5, "WidgetSwipeTest": 8, "RealWidgetTest": 1,
-            "SequentialInputTest": 4, "WidgetScrollTest": 1}
+            "SequentialInputTest": 4, "WidgetScrollTest": 1, "WidgetSizingTest": 7}
 name, directory = sys.argv[1:]
 cases = []
 for report in pathlib.Path(directory).rglob("TEST-*.xml"):

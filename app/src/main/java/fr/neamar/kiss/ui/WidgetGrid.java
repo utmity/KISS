@@ -154,6 +154,9 @@ public class WidgetGrid extends LinearLayout {
                 int dy = Math.round((event.getY() - downY) / row);
                 if (resizing) {
                     AppWidgetProviderInfo info = ((AppWidgetHostView) selected).getAppWidgetInfo();
+                    if (WidgetDisplaySettings.ignoresLimits(getContext(), ((AppWidgetHostView) selected).getAppWidgetId())) {
+                        info = null; // Grid bounds and collision checks still apply.
+                    }
                     boolean horizontal = info == null || (info.resizeMode & AppWidgetProviderInfo.RESIZE_HORIZONTAL) != 0;
                     boolean vertical = info == null || (info.resizeMode & AppWidgetProviderInfo.RESIZE_VERTICAL) != 0;
                     int minW = info == null ? 1 : Math.max(1, (int) Math.ceil((double) (info.minResizeWidth > 0 ? info.minResizeWidth : info.minWidth) / unit));

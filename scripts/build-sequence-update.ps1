@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory = $true)][string]$ReferenceApk,
     [string]$SdkPath = "$env:LOCALAPPDATA/Android/Sdk",
-    [string]$OutputDirectory
+    [string]$OutputDirectory,
+    [string]$VerifyApk
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
@@ -30,6 +31,15 @@ function Get-VerifiedIdentity([string]$Apk) {
 }
 
 $oldVersion = Get-VerifiedIdentity $ReferenceApk
+function Assert-NewerVersion([long]$Version) {
+    if ($Version -le $oldVersion) { throw 'versionCode must be strictly greater than the reference APK. Increase app/build.gradle versionCode before publishing an update.' }
+}
+if ($VerifyApk) {
+    $newVersion = Get-VerifiedIdentity (Resolve-Path -LiteralPath $VerifyApk).Path
+    Assert-NewerVersion $newVersion
+    Write-Output "Verified update: applicationId=fr.neamar.kiss.sequence.debug versionCode=$newVersion previous=$oldVersion certificate_sha256=$expected"
+    return
+}
 $androidUserDirectory = if ($env:ANDROID_USER_HOME) { $env:ANDROID_USER_HOME } else { Join-Path $env:USERPROFILE '.android' }
 $key = Join-Path $androidUserDirectory 'debug.keystore'
 if (!(Test-Path -LiteralPath $key -PathType Leaf)) {
@@ -38,18 +48,30 @@ if (!(Test-Path -LiteralPath $key -PathType Leaf)) {
 $keyHash = (Get-FileHash -LiteralPath $key -Algorithm SHA256).Hash
 Push-Location $repo
 try {
+    # Inspect only public signing metadata. Never print environment variables or key contents.
+    # This also rejects a different Gradle-selected store before compiling/distributing an APK.
+    $report = & .\gradlew.bat signingReport --console=plain --no-configuration-cache 2>&1
+    if ($LASTEXITCODE -ne 0) { throw 'Unable to verify the configured signing identity.' }
+    $debug = [regex]::Match(($report -join "`n"), '(?ms)^Variant: debug\r?\n(.*?)(?=^----------|\z)')
+    $digest = [regex]::Match($debug.Value, '(?m)^SHA-256: ([0-9A-Fa-f:]+)\r?$')
+    $store = [regex]::Match($debug.Value, '(?m)^Store: (.+?)\r?$')
+    if (!$digest.Success -or $digest.Groups[1].Value.Replace(':', '').ToLowerInvariant() -ne $expected -or
+        !$store.Success -or [IO.Path]::GetFullPath($store.Groups[1].Value) -ne [IO.Path]::GetFullPath($key)) {
+        throw 'Configured Debug signing key does not match the existing KISS identity. No update APK was published.'
+    }
     & .\gradlew.bat testDebugUnitTest lintDebug assembleDebug --no-configuration-cache
     if ($LASTEXITCODE -ne 0) { throw 'Build or verification failed.' }
     if ((Get-FileHash -LiteralPath $key -Algorithm SHA256).Hash -ne $keyHash) { throw 'Signing key changed during build.' }
     $apk = Join-Path $repo 'app/build/outputs/apk/debug/app-debug.apk'
     $newVersion = Get-VerifiedIdentity $apk
-    if ($newVersion -lt $oldVersion) { throw 'Refusing a versionCode downgrade.' }
+    Assert-NewerVersion $newVersion
     $commit = (& git rev-parse HEAD).Trim()
     New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
     $destination = Join-Path $OutputDirectory "KISS-sequence-$($commit.Substring(0, 12)).apk"
     Copy-Item -LiteralPath $apk -Destination $destination
     @(
         "source_commit=$commit"
+        "source_branch=$((& git branch --show-current).Trim())"
         "working_tree_dirty=$([bool](& git status --porcelain))"
         'applicationId=fr.neamar.kiss.sequence.debug'
         "previous_versionCode=$oldVersion"

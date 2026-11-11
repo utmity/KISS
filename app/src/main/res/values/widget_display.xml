@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="widget_display_settings">Widget size and display</string>
+    <string name="widget_ignore_limits">Ignore provider size limits</string>
+    <string name="widget_scale_explanation" formatted="false">Resize the grid area with the corner handle. Display zoom changes only the content: below 100% adds margins; above 100% may crop content. Provider layouts may still impose limits.</string>
+    <string name="widget_scale_value">Display zoom: %1$d%%</string>
+    <string name="widget_scale_reset">Reset zoom to 100%</string>
+</resources>

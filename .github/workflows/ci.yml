@@ -39,7 +39,11 @@ jobs:
             app/build/test-results/
           retention-days: 14
   ui:
-    name: Custom feature UI regression (Android 16)
+    name: Custom feature UI regression (API ${{ matrix.api }})
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 36]
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
@@ -59,7 +63,7 @@ jobs:
       - name: Run on disposable emulator, never a user's phone
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 36
+          api-level: ${{ matrix.api }}
           target: google_apis
           arch: x86_64
           profile: pixel_2
@@ -69,7 +73,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: android-ui-${{ github.sha }}
+          name: android-ui-api${{ matrix.api }}-${{ github.sha }}
           path: |
             app/build/custom-ui-reports/
             app/build/reports/androidTests/

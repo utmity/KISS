@@ -9,7 +9,7 @@ fi
 bash ./gradlew installDebug installDebugAndroidTest --stacktrace
 adb shell appwidget grantbind --package fr.neamar.kiss.sequence.debug --user 0
 overall=0
-for test_class in WidgetGridTest WidgetSwipeTest RealWidgetTest SequentialInputTest WidgetScrollTest; do
+for test_class in WidgetGridTest WidgetSwipeTest RealWidgetTest SequentialInputTest WidgetScrollTest WidgetSizingTest; do
     # A single class per invocation avoids silent truncation of class lists.
     result=0
     bash ./gradlew connectedDebugAndroidTest \
