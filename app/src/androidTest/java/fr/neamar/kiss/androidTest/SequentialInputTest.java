@@ -8,6 +8,9 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import androidx.preference.PreferenceManager;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.platform.app.InstrumentationRegistry;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import fr.neamar.kiss.MainActivity;
@@ -18,7 +21,27 @@ import static org.junit.Assert.*;
 
 /** View/IME integration on a disposable emulator; not a hardware keyboard test. */
 public class SequentialInputTest {
+    @BeforeClass public static void disableUnrelatedPermissionRequests() {
+        // A fresh emulator has no contacts/phone grants. Those dialogs take window
+        // focus away from the editor and are unrelated to keyboard shortcuts.
+        PreferenceManager.getDefaultSharedPreferences(
+                InstrumentationRegistry.getInstrumentation().getTargetContext()).edit()
+                .putBoolean("enable-contacts", false).putBoolean("enable-phone", false).commit();
+    }
+
     @Rule public ActivityScenarioRule<MainActivity> rule = new ActivityScenarioRule<>(MainActivity.class);
+
+    @Before public void waitForWindowFocus() {
+        long deadline = SystemClock.uptimeMillis() + 5000;
+        boolean[] focused = {false};
+        do {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            rule.getScenario().onActivity(a -> focused[0] = a.hasWindowFocus());
+            if (focused[0]) return;
+            SystemClock.sleep(25);
+        } while (SystemClock.uptimeMillis() < deadline);
+        fail("Launcher must have window focus before keyboard input is tested");
+    }
 
     private KeyEvent key(int code, int action, long down, int repeat) {
         return new KeyEvent(down, SystemClock.uptimeMillis(), action, code, repeat,

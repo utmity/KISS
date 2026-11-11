@@ -8,6 +8,7 @@ if [[ ! "$devices" =~ ^emulator-[0-9]+$ ]]; then
 fi
 bash ./gradlew installDebug installDebugAndroidTest --stacktrace
 adb shell appwidget grantbind --package fr.neamar.kiss.sequence.debug --user 0
+overall=0
 for test_class in WidgetGridTest WidgetSwipeTest RealWidgetTest SequentialInputTest WidgetScrollTest; do
     # A single class per invocation avoids silent truncation of class lists.
     result=0
@@ -18,6 +19,7 @@ for test_class in WidgetGridTest WidgetSwipeTest RealWidgetTest SequentialInputT
     mkdir -p "$destination"
     cp -R app/build/outputs/androidTest-results "$destination/"
     cp -R app/build/reports/androidTests "$destination/"
-    if [[ "$result" != 0 ]]; then exit "$result"; fi
-    python3 scripts/check-ui-results.py "$test_class" "$destination/androidTest-results"
+    if [[ "$result" != 0 ]]; then overall=1; fi
+    python3 scripts/check-ui-results.py "$test_class" "$destination/androidTest-results" || overall=1
 done
+exit "$overall"
