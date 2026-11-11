@@ -147,6 +147,18 @@ public class WidgetSizingTest {
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync(); assertEquals(2, clicks);
     }
+    @Test public void defaultAndResetPreserveProvidersOwnTransform() {
+        rule.getScenario().onActivity(a -> {
+            setup(a, true); View root = fixedContent(a); root.setScaleX(.8f); root.setScaleY(.9f);
+            root.setPivotX(12); root.setPivotY(16); layout();
+            assertEquals(.8f, root.getScaleX(), .001f); assertEquals(12, root.getPivotX(), .001f);
+            WidgetDisplaySettings.setScalePercent(a, ID, 150); host.requestLayout(); layout();
+            assertEquals(1.2f, root.getScaleX(), .001f);
+            WidgetDisplaySettings.setScalePercent(a, ID, 100); host.requestLayout(); layout();
+            assertEquals(.8f, root.getScaleX(), .001f); assertEquals(.9f, root.getScaleY(), .001f);
+            assertEquals(12, root.getPivotX(), .001f); assertEquals(16, root.getPivotY(), .001f);
+        });
+    }
     @Test public void enlargedContentIsClippedToItsOwnCell() {
         rule.getScenario().onActivity(a -> {
             setup(a, true); fixedContent(a); cell().span = 1;

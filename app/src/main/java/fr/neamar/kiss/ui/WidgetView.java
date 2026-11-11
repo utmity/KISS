@@ -34,6 +34,7 @@ public class WidgetView extends AppWidgetHostView {
     private java.util.function.Consumer<String> swipeListener;
     private boolean swipeOwned;
     private int notifiedWidth = -1, notifiedHeight = -1;
+    private final java.util.WeakHashMap<android.view.View, float[]> originalScales = new java.util.WeakHashMap<>();
 
     public void setSwipeListener(java.util.function.Consumer<String> listener) {
         swipeListener = listener;
@@ -265,10 +266,21 @@ public class WidgetView extends AppWidgetHostView {
         float scale = WidgetDisplaySettings.scalePercent(getContext(), getAppWidgetId()) / 100f;
         for (int i = 0; i < getChildCount(); i++) {
             android.view.View child = getChildAt(i);
-            child.setPivotX(child.getWidth() / 2f);
-            child.setPivotY(child.getHeight() / 2f);
-            child.setScaleX(scale);
-            child.setScaleY(scale);
+            float[] original = originalScales.get(child);
+            if (scale == 1f) {
+                if (original != null) {
+                    child.setScaleX(original[0]); child.setScaleY(original[1]);
+                    originalScales.remove(child);
+                }
+                // Leave an unmodified provider's own transform alone at the default 100%.
+            } else {
+                if (original == null) {
+                    original = new float[]{child.getScaleX(), child.getScaleY()};
+                    originalScales.put(child, original);
+                }
+                // Default View pivot follows its center; retain any explicit provider pivot.
+                child.setScaleX(original[0] * scale); child.setScaleY(original[1] * scale);
+            }
         }
         notifyWidgetSize(getWidth(), getHeight());
     }

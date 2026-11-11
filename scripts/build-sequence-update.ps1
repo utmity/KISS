@@ -19,8 +19,8 @@ $aapt = Join-Path $buildTools.FullName 'aapt.exe'
 function Get-VerifiedIdentity([string]$Apk) {
     $cert = & $signer verify --print-certs $Apk
     if ($LASTEXITCODE -ne 0) { throw 'APK signature verification failed.' }
-    $match = [regex]::Match(($cert -join "`n"), '(?m)^Signer #1 certificate SHA-256 digest: ([0-9a-f]+)\r?$')
-    if (!$match.Success -or $match.Groups[1].Value -ne $expected) {
+    $signers = [regex]::Matches(($cert -join "`n"), '(?m)^Signer #\d+ certificate SHA-256 digest: ([0-9a-f]+)\r?$')
+    if ($signers.Count -ne 1 -or $signers[0].Groups[1].Value -ne $expected) {
         throw 'Certificate mismatch: do not install or uninstall anything.'
     }
     $badging = & $aapt dump badging $Apk
