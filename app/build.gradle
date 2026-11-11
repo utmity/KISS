@@ -20,7 +20,7 @@ android {
         targetSdk {
             version = release(36)
         }
-        versionCode 224
+        versionCode 225
         versionName "3.26.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -45,10 +45,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled true
-            shrinkResources = true
+            minifyEnabled false
+            shrinkResources = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".sequence.debug"
         }
     }
 

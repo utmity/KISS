@@ -1,5 +1,8 @@
 # KISS
 
+This fork includes TITAN 2 ELITE widget layout and sequential keyboard shortcuts.
+See [fork maintenance and safe updates](docs/fork-maintenance-ja.md) for builds, data compatibility and signing.
+
 An Android launcher not spending time and memory on stuff you'd rather do.
 
 Libre software, licensed [GPLv3+](https://github.com/Neamar/KISS/blob/master/LICENSE): use, see, [change](CONTRIBUTING.md) and share at will.

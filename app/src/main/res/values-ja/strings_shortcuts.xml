@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sequence_title">キーボードショートカット</string>
+    <string name="sequence_summary">開始キーを押して離し、アプリのキーを押す</string>
+    <string name="sequence_enabled">2キー順番押しを有効にする</string>
+    <string name="sequence_prefix">開始キー</string>
+    <string name="sequence_timeout">待機時間（ms、300〜2000）</string>
+    <string name="sequence_assignments">アプリの割り当て（A〜Z、0〜9）</string>
+    <string name="sequence_assignments_summary">2キー目ごとにアプリを登録・変更・解除</string>
+    <string name="sequence_unassigned">未登録／割り当て解除</string>
+    <string name="sequence_other_profile">別のプロファイル</string>
+    <string name="sequence_unavailable">アプリが利用できません（選択して変更・解除）</string>
+    <string name="sequence_limitations">検索欄が空でフォーカスがある場合だけ動作します。通常入力後はIMEの未確定文字を保護するため、新しい入力セッションになるまで開始を抑止します（例：KISSから離れて戻る）。Android・IME・端末のショートカットが先に消費するキーは利用できません。Space・Tab・CapsLock・文字キーの取得可否は実機で確認してください。CapsLockはシステムの大文字状態も変える場合があります。</string>
+</resources>
